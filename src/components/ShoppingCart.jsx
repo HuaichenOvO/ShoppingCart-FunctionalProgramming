@@ -1,27 +1,50 @@
-import React from 'react'
+import './../App.css'
+import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types';
 
-export default function ShoppingCart({ shoppingProducts }) {
-    // ??????????????????????????????/
+import SCard from './SCard';
+
+export default function ShoppingCart({ shoppingProducts, changeNumber }) {
+    // When state changes, use useState, when prop changes, use useEffect
+    const [sum, setSum] = useState(0);
+
+    useEffect(
+        () => {
+            if (shoppingProducts.length == 0) {
+                setSum(0);
+            }
+            else {
+                // why???????????????
+                const tmpProducts = Array.from(shoppingProducts);
+                const result = tmpProducts.reduce(
+                    (acc, currentItem) =>
+                        acc + currentItem.SPrice * currentItem.SNumber
+                    , 0
+                );
+
+                setSum(result);
+                console.log(`getTotalBill | The sum is ${result}`);
+            }
+        }, [shoppingProducts]
+    )
+
+
     return (
-        <div className="products row">
-            <ul>
+        <>
+            <h4>Shopping Cart | Checkout Bill $ {sum}</h4>
+            <div className="row">
                 {shoppingProducts.map(
-                    (p) => {
-                        { console.log("shoppingProducts: ", p.name) }
-                        return (<div className="col-4">
-                            <li className='card'>
-                                <img src={p.image} alt={p.name} />
-                                <p>Blah Blah{p.name}</p>
-                            </li>
-                        </div>)
+                    (p, i) => {
+                        if (p.SNumber > 0)
+                            return <SCard key={i} item={p} changeNumber={changeNumber} />
                     }
                 )}
-            </ul>
-        </div>
+            </div>
+        </>
     )
 }
 
 ShoppingCart.propTypes = {
     shoppingProducts: PropTypes.array.isRequired,
+    changeNumber: PropTypes.func.isRequired,
 }

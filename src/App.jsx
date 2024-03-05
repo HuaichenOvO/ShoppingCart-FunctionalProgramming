@@ -2,152 +2,171 @@ import "./App.css";
 
 import React, { useState } from "react";
 
-import ProductsList from "./components/ProductsList.jsx";
+import PopupWindow from "./components/PopupWindow.jsx"
+import Products from "./components/Products.jsx";
 import ShoppingCart from "./components/ShoppingCart.jsx";
 
 export default function App() {
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      name: "Product 1",
-      price: 100,
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      id: 2,
-      name: "Product 2",
-      price: 200,
-      image: "flame.jpg",
-    },
-    {
-      id: 3,
-      name: "Product 3",
-      price: 300,
-      image: "https://via.placeholder.com/150",
-    },
-  ]);
+	const [isPopupOpen, setIsPopupOpen] = useState(false);
+	const togglePopup = () => { setIsPopupOpen(!isPopupOpen); };
 
-  const [shoppingCart, setShoppingCart] = useState([
-    {
-      id: 2,
-      name: "Product 2",
-      price: 200,
-      image: "flame.jpg",
-    },
-  ])
+	// https://www.imagine.art/dashboard/tool/realtime/text
+	// citation of the AI picture generator
+	// worth a try, real cool
+	const [products, setProducts] = useState([
+		{
+			productID: 1,
+			productName: `Roast Meat`,
+			productImage: 'meat1.png',
+			productPrice: 5,
+		},
+		{
+			productID: 2,
+			productName: `Steak Souples`,
+			productImage: 'noodle1.png',
+			productPrice: 8,
+		},
+		{
+			productID: 3,
+			productName: `Salmon Rice`,
+			productImage: 'rice1.png',
+			productPrice: 9,
+		},
+		{
+			productID: 4,
+			productName: `Avocado Salad`,
+			productImage: 'salad1.png',
+			productPrice: 4,
+		},
+		{
+			productID: 5,
+			productName: `Meatball Noodles`,
+			productImage: 'noodle3.png',
+			productPrice: 7,
+		},
+	]);
 
-  const onAddProduct = () => {
-    setProducts([
-      ...products,
-      {
-        id: products.at(-1).id + 1,
-        name: `Product ${products.length + 1}`,
-        price: 400,
-        image: "https://via.placeholder.com/150",
-      },
-    ]);
-  };
+	const [cartItems, setCartItems] = useState([
+		{
+			SID: 1,
+			SName: `Roast Meat`,
+			SImage: 'meat1.png',
+			SPrice: 5,
+			SNumber: 3,
+		},
+		{
+			SID: 2,
+			SName: `Steak Souples`,
+			SImage: 'noodle1.png',
+			SPrice: 8,
+			SNumber: 3,
+		},
+		{
+			SID: 4,
+			SName: `Avocado Salad`,
+			SImage: 'salad1.png',
+			SPrice: 4,
+			SNumber: 2,
+		},
+	]);
 
-  const onAddShoppingCart = (e) => {
+	const onChangeButtonPressed = (ID, number) => {
+		// Get the index of the clicked product
+		// console.log(`onChangeButtonPressed | Clicked`);
 
-    const nodeList = e.target.parentNode.childNodes;
-    const src = nodeList[0].getAttribute('src');
-    const product = nodeList[0].getAttribute('alt');
-    const price = nodeList[2].innerHTML.slice(1);
-    const id = nodeList[0].getAttribute('alt').slice(8);
-    console.log(+id);
+		const clickedItem = Array
+			.from(cartItems)
+			.filter((i) => (i.SID == ID))
+			.at(0);
 
+		const clickedIndex = Array
+			.from(cartItems)
+			.indexOf(clickedItem);
 
-    // setShoppingCart([...shoppingCart,
-    // {
-    //   id: +id,
-    //   name: product,
-    //   price: +price,
-    //   image: src,
-    // }
-    // ])
-  }
+		// why?????????????
+		clickedItem.SNumber += number;
 
-  return (
-    <div>
-      <div className="row">
-        <div className="col-4">
-          <h1>Basic Shopping Site</h1>
+		if (clickedItem.SNumber == 0) {
+			// setCartItems(newCartItems);
+			// cartItems.splice(clickedIndex, 1);
+			const newCartItems = Array.from(cartItems);
+			newCartItems.splice(clickedIndex, 1);
+			setCartItems(newCartItems);
+		}
+		else {
+			const newCartItems = Array.from(cartItems);
+			newCartItems.splice(clickedIndex, 1, clickedItem);
+			setCartItems(newCartItems);
+		}
 
-          <ProductsList products={products} onAddShoppingCart={onAddShoppingCart} />
+		console.log(`App | Clicked + or - on item index ${clickedIndex}`);
+	};
 
-          <button className="btn btn-primary" onClick={onAddProduct}>
-            Add Product
-          </button>
-        </div>
-        {/* col-8 */}
+	const onAddShoppingCart = (ID) => {
 
-        <div className="col-4">
-          <h2>Shopping Cart</h2>
-          <ShoppingCart shoppingProducts={shoppingCart} />
-          {/* {shoppingCart.map(
-            (p, i) =>
-              // <p key={i}>Blah Blah{shopping.at(i).name}</p>
+		let newCartItems = Array.from(cartItems);
+		const newItemExists = newCartItems
+			.filter((i) => (i.SID == ID))
+			.length;
 
-              <div key={i} className="col-4">
-                <li className='card'>
-                  <img src={p.image} alt={p.name} />
-                  {p.name}
-                </li>
-              </div>
+		const tmpItem = Array
+			.from(products)
+			.filter((i) => i.productID == ID)
+			.at(0);
 
-          )} */}
-          {/* <h1>{shopping.at(0).name}</h1> */}
-        </div>
-      </div>
-    </div>
-  );
+		if (newItemExists == 0) {
+			setCartItems([...cartItems,
+			{
+				SID: tmpItem.productID,
+				SName: tmpItem.productName,
+				SImage: tmpItem.productImage,
+				SPrice: tmpItem.productPrice,
+				SNumber: 1,
+			}
+			])
+		}
+		else {
+			onChangeButtonPressed(ID, 1);
+		}
+
+		console.log(`App | Add to shopping cart. Product ID is ${ID}. Number this item is ${newItemExists}`);
+	};
+
+	const onCreateProduct = (receivedObj) => {
+		togglePopup();
+		receivedObj
+		const newProduct = {
+			productID: products.at(-1).productID + 1,
+			productName: receivedObj.productName,
+			productImage: "unknown.png",
+			productPrice: receivedObj.productPrice,
+		}
+		setProducts([...products, newProduct]);
+		console.log(`App [submit new obj] | old ID: ${products.at(-1).productID}`);
+	}
+
+	return (
+		<>
+			<div className="container-md">
+				<h1>We Order!</h1>
+				<p>
+					Any dishes you can create? <button onClick={togglePopup} className="btn btn-success">Add new dishes!</button>
+				</p>
+				<PopupWindow isOpen={isPopupOpen} onSubmitObject={onCreateProduct} />
+				<hr />
+			</div >
+
+			<div className="container">
+				<div className="row">
+					<div className="col-md-6">
+						<Products products={products} onAdd={onAddShoppingCart} />
+					</div>
+
+					<div className="col-md-6">
+						<ShoppingCart shoppingProducts={cartItems} changeNumber={onChangeButtonPressed} />
+					</div>
+				</div>
+			</div>
+		</>
+	);
 }
-
-// export default class App extends Component {
-//   constructor(props) {
-//     super(props);
-//     this.state = {
-//       products: [
-//         {
-//           id: 1,
-//           name: "Product 1",
-//           price: 100,
-//           image: "https://via.placeholder.com/150",
-//         },
-//         {
-//           id: 2,
-//           name: "Product 2",
-//           price: 200,
-//           image: "https://via.placeholder.com/150",
-//         },
-//         {
-//           id: 3,
-//           name: "Product 3",
-//           price: 300,
-//           image: "https://via.placeholder.com/150",
-//         },
-//       ],
-//     };
-//   }
-
-//   render() {
-//     return (
-//       <div>
-//         <h1>Basic Shopping Site</h1>
-
-//         <h2>Products</h2>
-//         <div className="products">
-//           {this.state.products.map((product) => (
-//             <div key={product.id} className="product">
-//               <img src={product.image} alt={product.name} />
-//               <h3>{product.name}</h3>
-//               <p>Price: {product.price}</p>
-//               <button>Add to Cart</button>
-//             </div>
-//           ))}
-//         </div>
-//       </div>
-//     );
-//   }
-// }
