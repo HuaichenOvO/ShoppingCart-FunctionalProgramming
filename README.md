@@ -2,7 +2,7 @@
 
 This is the deployed app
 
-https://lets-order-react-crud.web.app/
+weorder-3eabb.web.app
 
 This is the design document
 
